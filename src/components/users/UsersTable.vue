@@ -10,12 +10,15 @@
         </TableRow>
       </TableHeader>
       <TableBody>
-        <TableRow v-for="user in users" :key="user.id">
-          <TableCell v-for="{ columnKey } in tableColumns" :key="columnKey">
-            {{ user[columnKey] }}
-          </TableCell>
-          <TableCell> delete </TableCell>
-        </TableRow>
+        <TableEmpty v-if="!users.length" :colspan="tableColumns.length">Нет пользователей, добавьте нового пользователя.</TableEmpty>
+        <template v-else>
+          <TableRow v-for="user in users" :key="user.id">
+            <TableCell v-for="{ columnKey } in tableColumns" :key="columnKey">
+              {{ user[columnKey] }}
+            </TableCell>
+            <TableCell> <Button label="Удалить" icon="pi pi-trash" /> </TableCell>
+          </TableRow>
+        </template>
       </TableBody>
     </Table>
   </div>
@@ -23,7 +26,8 @@
 
 <script setup lang="ts">
 import type { RecordType, User, UserId } from '@/types/users';
-import { Table, TableBody, TableHeader, TableRow, TableHead, TableCell } from '@/components/ui/table';
+import { Table, TableBody, TableHeader, TableRow, TableHead, TableCell, TableEmpty } from '@/components/ui/table';
+import Button from 'primevue/button';
 import { useUsersStore } from '@/stores/users';
 import { storeToRefs } from 'pinia';
 

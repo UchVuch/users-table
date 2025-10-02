@@ -4,13 +4,13 @@ import { ref } from 'vue';
 
 export const useUsersStore = defineStore('users', () => {
   const users = ref<User[]>([
-    {
-      id: '1',
-      marks: [],
-      recordType: 'LDAP',
-      login: 'User 1',
-      password: 'admin'
-    }
+    // {
+    //   id: '1',
+    //   marks: [],
+    //   recordType: 'LDAP',
+    //   login: 'User 1',
+    //   password: 'admin'
+    // }
   ]);
 
   const addUser = (user: User) => {};
