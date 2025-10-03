@@ -1,6 +1,14 @@
 <template>
   <div>
-    <Table>
+    <div class="top">
+      <h1>Учётные записи</h1>
+      <Button icon="pi pi-plus" severity="success" aria-label="Добавить пользователя" />
+    </div>
+
+    <p class="informer">Для указания нескольких меток пары логин/пароль используйте разделитель ;</p>
+
+    {{ users }}
+    <Table class="users-table">
       <TableHeader>
         <TableRow>
           <TableHead v-for="column in tableColumns" :key="column.columnKey">
@@ -14,9 +22,32 @@
         <template v-else>
           <TableRow v-for="user in users" :key="user.id">
             <TableCell v-for="{ columnKey } in tableColumns" :key="columnKey">
-              {{ user[columnKey] }}
+              <InputText
+                v-if="columnKey === 'marks'"
+                :value="user[columnKey]"
+                type="text"
+                @update:model-value="
+                  (e) => {
+                    console.log(e);
+                  }
+                "
+              />
+              <Select v-else-if="columnKey === 'recordType'" v-model="user[columnKey]" :options="recordTypeOptions" />
+              <InputText
+                v-else
+                v-model="user[columnKey]"
+                type="text"
+                @update:model-value="
+                  (e) => {
+                    console.log(e);
+                  }
+                "
+              />
+              <Message severity="error" size="small" variant="simple">ошибка</Message>
             </TableCell>
-            <TableCell> <Button label="Удалить" icon="pi pi-trash" /> </TableCell>
+            <TableCell class="delete-btn">
+              <Button label="Удалить" icon="pi pi-trash" severity="danger" aria-label="Удалить пользователя" />
+            </TableCell>
           </TableRow>
         </template>
       </TableBody>
@@ -27,7 +58,7 @@
 <script setup lang="ts">
 import type { RecordType, User, UserId } from '@/types/users';
 import { Table, TableBody, TableHeader, TableRow, TableHead, TableCell, TableEmpty } from '@/components/ui/table';
-import Button from 'primevue/button';
+import { Message, Button, InputText, Select } from 'primevue';
 import { useUsersStore } from '@/stores/users';
 import { storeToRefs } from 'pinia';
 
@@ -71,3 +102,25 @@ const handleBlur = (user: User) => {
   handleUserData(user);
 };
 </script>
+
+<style lang="css" scoped>
+.top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.informer {
+  font-size: 18px;
+  margin-bottom: 20px;
+}
+
+.users-table {
+  width: 60vw;
+}
+
+.delete-btn {
+  display: flex;
+}
+</style>
