@@ -1,5 +1,7 @@
+@import 'primeicons/primeicons.css';
+
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif, primeicons;
   line-height: 1.5;
   font-weight: 400;
 
@@ -20,7 +22,7 @@
   padding: 0;
   border: 0;
   box-sizing: border-box;
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif, primeicons;
 }
 
 html,
@@ -50,11 +52,13 @@ img {
   height: 100%;
 }
 
-ul, ol {
+ul,
+ol {
   list-style: none;
 }
 
-input, textarea {
+input,
+textarea {
   padding: 0;
 }
 

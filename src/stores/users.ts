@@ -6,7 +6,7 @@ export const useUsersStore = defineStore('users', () => {
   const users = ref<User[]>([
     {
       id: '1',
-      marks: [],
+      marks: [{text: 'asdfsdf'}],
       recordType: 'LDAP',
       login: 'User 1',
       password: 'admin'
