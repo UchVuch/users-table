@@ -1,6 +1,6 @@
 import type { User, UserId } from '@/types/users';
 import { defineStore } from 'pinia';
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 
 export const useUsersStore = defineStore('users', () => {
   const users = ref<User[]>([
@@ -12,6 +12,13 @@ export const useUsersStore = defineStore('users', () => {
       password: 'admin'
     }
   ]);
+
+  const localUsers = localStorage.getItem('users');
+  users.value = localUsers ? JSON.parse(localUsers) : [...users.value];
+
+  watch(users, () => localStorage.setItem('users', JSON.stringify(users.value)), {
+    deep: true
+  });
 
   const isUserExists = (id: UserId) => {
     return users.value.find((user) => user.id === id);
