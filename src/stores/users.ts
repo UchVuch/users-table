@@ -1,24 +1,46 @@
-import type { User } from '@/types/users';
+import type { User, UserId } from '@/types/users';
 import { defineStore } from 'pinia';
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 
 export const useUsersStore = defineStore('users', () => {
   const users = ref<User[]>([
     {
       id: '1',
-      marks: [{text: 'asdfsdf'}],
-      recordType: 'LDAP',
+      marks: [{ text: 'asdfsdf' }, { text: 'tututu' }],
+      recordType: 'Локальная',
       login: 'User 1',
       password: 'admin'
     }
   ]);
 
-  const addUser = (user: User) => {};
-  const deleteUser = (user: User) => {};
+  const localUsers = localStorage.getItem('users');
+  users.value = localUsers ? JSON.parse(localUsers) : [...users.value];
+
+  watch(users, () => localStorage.setItem('users', JSON.stringify(users.value)), {
+    deep: true
+  });
+
+  const isUserExists = (id: UserId) => {
+    return users.value.find((user) => user.id === id);
+  };
+  const addUser = (user: User) => {
+    users.value.push(user);
+  };
+  const deleteUser = (id: UserId) => {
+    users.value = users.value.filter((user) => user.id !== id);
+  };
+  const updateUser = (id: UserId, updatedData: User) => {
+    const index = users.value.findIndex((user) => user.id === id);
+    if (index !== -1) {
+      users.value[index] = { ...updatedData };
+    }
+  };
 
   return {
     users,
+    isUserExists,
     addUser,
-    deleteUser
+    deleteUser,
+    updateUser
   };
 });
