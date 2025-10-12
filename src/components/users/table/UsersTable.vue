@@ -33,6 +33,7 @@
                     autocomplete="off"
                     :disabled="disabledTable(userListIndex)"
                     fluid
+                    @focus="(e) => setCurrentInputFocusValue(e)"
                     @blur="(e) => handleInputChange(e, { user, key: columnKey, defaultValue: user[columnKey] })"
                   />
                   <Select
@@ -41,6 +42,7 @@
                     :options="recordTypeOptions"
                     :disabled="disabledTable(userListIndex)"
                     fluid
+                    @focus="setCurrentSelectFocusValue(user[columnKey])"
                     @update:model-value="(e) => handleDropdownChange(e, { user, defaultValue: user[columnKey] })"
                   />
                   <InputText
@@ -53,6 +55,7 @@
                     :invalid="showInvalid(columnKey, user.id)"
                     :disabled="disabledTable(userListIndex)"
                     fluid
+                    @focus="(e) => setCurrentInputFocusValue(e)"
                     @blur="(e) => handleInputChange(e, { user, key: columnKey, defaultValue: user[columnKey] })"
                   />
                   <Password
@@ -68,6 +71,7 @@
                     :invalid="showInvalid(columnKey, user.id)"
                     :disabled="disabledTable(userListIndex)"
                     fluid
+                    @focus="(e) => setCurrentInputFocusValue(e)"
                     @blur="(e) => handleInputChange(e, { user, key: columnKey, defaultValue: user[columnKey] })"
                   />
                 </TableCell>
@@ -96,7 +100,7 @@ import { Table, TableBody, TableHeader, TableRow, TableHead, TableCell, TableEmp
 import { Button, InputText, Select, Password } from 'primevue';
 import { useUsersStore } from '@/stores/users';
 import { storeToRefs } from 'pinia';
-import { ref, watch } from 'vue';
+import { onMounted, ref } from 'vue';
 
 interface UsersTableColumn {
   columnKey: UsersColumnKey;
@@ -136,6 +140,16 @@ const getMarksFromString = (marksString: string): Mark[] => {
   return [];
 };
 
+let currentInputFocusValue: string = '';
+const setCurrentInputFocusValue = (e: FocusEvent) => {
+  if (e.target instanceof HTMLInputElement) {
+    currentInputFocusValue = e.target.value;
+  }
+};
+
+let currentSelectFocusValue: string = '';
+const setCurrentSelectFocusValue = (value: string) => (currentSelectFocusValue = value);
+
 const hiddenFields = ref<StorageWithColumnKeyForIds>({
   password: []
 });
@@ -164,19 +178,16 @@ const getColSpan = (userId: UserId, key: UsersColumnKey): number => {
 };
 
 const userList = ref<FormatedUser[]>([]);
-watch(
-  users,
-  (newValue: User[]) => {
-    const formatedUsers = newValue.map((user) => {
-      if (user.password === null) {
-        hiddenFields.value.password?.push(user.id);
-      }
-      return { ...user, marks: getStringFromMarks(user.marks) };
-    });
-    userList.value = [...formatedUsers];
-  },
-  { deep: true, immediate: true }
-);
+
+onMounted(() => {
+  const formatedUsers = users.value.map((user) => {
+    if (user.password === null) {
+      hiddenFields.value.password?.push(user.id);
+    }
+    return { ...user, marks: getStringFromMarks(user.marks) };
+  });
+  userList.value = [...formatedUsers];
+});
 
 const tableColumns: UsersTableColumn[] = [
   {
@@ -214,6 +225,7 @@ const addNewUser = () => {
 };
 const handleDeleteUser = (userId: UserId) => {
   addingUser.value = false;
+  userList.value = userList.value.filter((user) => user.id !== userId);
   userStore.deleteUser(userId);
 };
 
@@ -247,6 +259,7 @@ const validateUserData = (currentUser: FormatedUser) => {
 const handleInputChange = (e: FocusEvent, userData: InputUpdatedData) => {
   if (e.target instanceof HTMLInputElement) {
     const newValue = e.target.value;
+    if (newValue === currentInputFocusValue) return;
     const { user, key, defaultValue } = userData;
     const userId = user.id;
 
@@ -279,13 +292,14 @@ const handleInputChange = (e: FocusEvent, userData: InputUpdatedData) => {
       addingUser.value = false;
       return;
     }
-    console.log('upddate');
+    console.log('upddate input');
     userStore.updateUser(userId, { ...user, marks, [key]: newValue });
     // }
   }
 };
 
 const handleDropdownChange = (recordType: RecordType, userData: DropdownUpdatedData) => {
+  if (recordType === currentSelectFocusValue) return;
   const { user, defaultValue } = userData;
 
   const isLdap = recordType === 'LDAP';
@@ -312,6 +326,7 @@ const handleDropdownChange = (recordType: RecordType, userData: DropdownUpdatedD
     addingUser.value = false;
     return;
   }
+  console.log('up select');
   userStore.updateUser(user.id, { ...user, marks, password, recordType });
 };
 </script>
