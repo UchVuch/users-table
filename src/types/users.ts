@@ -13,3 +13,5 @@ export interface User {
   login: string;
   password: string | null;
 }
+
+export type UsersColumnKey = keyof User;
